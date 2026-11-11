@@ -1,1 +1,126 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threads Reply Manager</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#090a0e;color:white;
+ font-family:Arial,sans-serif;padding:20px;
+}
+main{max-width:600px;margin:auto}
+header{text-align:center;padding:25px}
+header h1{font-size:28px}
+.card{
+ background:#171922;border:1px solid #30333e;
+ border-radius:16px;padding:18px;margin:15px 0;
+}
+input[type=search]{
+ width:100%;padding:14px;background:#242733;
+ color:white;border:1px solid #444;border-radius:10px;
+ font-size:16px;margin:12px 0;
+}
+button{
+ padding:12px 15px;border:0;border-radius:9px;
+ background:white;color:#111;font-weight:bold;
+ margin:4px;cursor:pointer;
+}
+.red{background:#e44d5b;color:white}
+.dark{background:#303440;color:white}
+.reply{
+ background:#242733;padding:15px;
+ border-radius:12px;margin:12px 0;
+}
+.reply p{line-height:1.6}
+small{color:#aaa}
+.notice{color:#ffcf78;font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div style="font-size:42px">◉</div>
+ <h1>Threads Reply Manager</h1>
+ <small>จัดการข้อความตอบกลับของคุณ</small>
+</header>
+
+<div class="card">
+ <div class="notice">
+ DEMO VERSION — ข้อมูลทดลองเท่านั้น
+ ยังไม่ได้เชื่อมบัญชี Threads จริง
+ </div>
+</div>
+
+<div class="card">
+ <p>ข้อความทั้งหมด: <b id="total">0</b></p>
+ <p>เลือกแล้ว: <b id="count">0</b></p>
+ <input id="search" type="search" placeholder="ค้นหาข้อความ...">
+ <button class="dark" onclick="allSelect(true)">เลือกทั้งหมด</button>
+ <button class="dark" onclick="allSelect(false)">ยกเลิกเลือก</button>
+ <button class="red" onclick="removeSelected()">ลบที่เลือก</button>
+ <div id="items"></div>
+</div>
+</main>
+<script>
+let data=[
+{id:1,text:"ขอบคุณสำหรับคำแนะนำครับ"},
+{id:2,text:"เห็นด้วยเลย เป็นความคิดที่ดีมาก"},
+{id:3,text:"ขอบคุณที่แบ่งปันเรื่องราวดี ๆ"},
+{id:4,text:"น่าสนใจมากครับ อยากรู้เพิ่มเติม"},
+{id:5,text:"ขอเป็นกำลังใจให้นะครับ"}
+];
+let selected=new Set();
+
+function render(){
+ let q=document.getElementById("search").value.toLowerCase();
+ let shown=data.filter(x=>x.text.toLowerCase().includes(q));
+ document.getElementById("total").textContent=data.length;
+ document.getElementById("count").textContent=selected.size;
+ let box=document.getElementById("items");
+ box.innerHTML="";
+ if(!shown.length){
+ box.textContent="ไม่พบข้อความ";
+ return;
+ }
+ shown.forEach(x=>{
+ let div=document.createElement("div");
+ div.className="reply";
+ let label=document.createElement("label");
+ let cb=document.createElement("input");
+ cb.type="checkbox";
+ cb.checked=selected.has(x.id);
+ cb.onchange=()=>{
+ if(cb.checked)selected.add(x.id);
+ else selected.delete(x.id);
+ render();
+ };
+ label.append(cb,document.createTextNode(" เลือกข้อความ"));
+ let p=document.createElement("p");
+ p.textContent=x.text;
+ let small=document.createElement("small");
+ small.textContent="ข้อความตัวอย่าง";
+ div.append(label,p,small);
+ box.append(div);
+ });
+}
+function allSelect(v){
+ data.filter(x=>x.text.toLowerCase().includes(
+ document.getElementById("search").value.toLowerCase()
+ )).forEach(x=>v?selected.add(x.id):selected.delete(x.id));
+ render();
+}
+function removeSelected(){
+ if(!selected.size){alert("กรุณาเลือกข้อความ");return;}
+ if(!confirm("ยืนยันลบรายการตัวอย่างที่เลือก?"))return;
+ data=data.filter(x=>!selected.has(x.id));
+ selected.clear();
+ render();
+}
+document.getElementById("search").addEventListener("input",render);
+render();
+</script>
+</body>
+</html>
